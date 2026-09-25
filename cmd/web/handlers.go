@@ -72,13 +72,24 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		// w.Write([]byte("Method not allowed"))
 		/*
 		* This above code snippet can be replaced by the line written below
-		* which is a shortcut that calls w.WriteHeader() and w.Write() underneath
 		* In terms of functionality it is exactly the same
+		* which is a shortcut that calls w.WriteHeader() and w.Write() underneath
 		* The main difference is now http.ResponseWriter is being passed to another function
 		* Which sends the response to the user for us
 		 */
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	w.Write([]byte("Create a new snippet...."))
+
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := 7
+
+	id, err := app.snippets.Insert(title, content, expires)
+
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
